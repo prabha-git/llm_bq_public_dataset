@@ -1,0 +1,14 @@
+#Ignore environment files
+/venv
+
+#Ignore Credential file
+genai-prabha-learn-887eca7e22c9.json
+
+# Ignore Python Cache files
+__pycache__/
+
+#Ignoring MacOS related files
+.DS_Store
+
+# Ignoring PyCharm Setting file
+.idea/
