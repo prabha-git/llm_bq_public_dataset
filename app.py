@@ -6,13 +6,41 @@ from src.config import DATASET_OPTIONS
 from src.chatbot.agent.agent import langchain_agent
 
 # Title of the app
-st.title("Choose the Public Dataset")
+st.title("Chicago Support")
 
-# Dropdown menu in the sidebar for user input
-selection = st.sidebar.selectbox("Choose the Public Dataset:", DATASET_OPTIONS)
+if "palm2_model" not in st.session_state:
+    st.session_state["palm2_model"] = "chat-bison@001"
 
-# Update global variables of project_id, dataset, table_name
-global_config = set_global_variables_bq_data_path(selection)
+if "messages" not in st.session_state:
+    st.session_state.messages = []
+
+for message in st.session_state.messages:
+    with st.chat_message(message["role"]):
+        st.markdown(message["content"])
+
+if prompt := st.chat_input("What is up?"):
+    st.session_state.messages.append({"role": "user", "content": prompt})
+    with st.chat_message("user"):
+        st.markdown(prompt)
+
+    agent = langchain_agent()
+
+    with st.chat_message("assistant"):
+        st.markdown(agent.ask_agent(prompt))
+        # message_placeholder = st.empty()
+        # full_response = ""
+        # for response in client.chat.completions.create(
+        #     model=st.session_state["openai_model"],
+        #     messages=[
+        #         {"role": m["role"], "content": m["content"]}
+        #         for m in st.session_state.messages
+        #     ],
+        #     stream=True,
+        # ):
+        #     full_response += (response.choices[0].delta.content or "")
+        #     message_placeholder.markdown(full_response + "▌")
+        #message_placeholder.markdown(full_response)
+    #st.session_state.messages.append({"role": "assistant", "content": full_response})
 
 @st.cache_data
 def fetch_schema_for_selcted_dataset(selection):
@@ -22,15 +50,60 @@ def fetch_schema_for_selcted_dataset(selection):
         st.error("Please select a correct dataset. Error: " + str(e))
         return None
 
-# Retrieve schema based on selection
-selected_dataset_schema = fetch_schema_for_selcted_dataset(selection)
 
 
+##########################
+#
+# st.title("ChatGPT-like clone")
+#
+# client = OpenAI(api_key=st.secrets["OPENAI_API_KEY"])
+#
+# if "openai_model" not in st.session_state:
+#     st.session_state["openai_model"] = "gpt-3.5-turbo"
+#
+# if "messages" not in st.session_state:
+#     st.session_state.messages = []
+#
+# for message in st.session_state.messages:
+#     with st.chat_message(message["role"]):
+#         st.markdown(message["content"])
+#
+# if prompt := st.chat_input("What is up?"):
+#     st.session_state.messages.append({"role": "user", "content": prompt})
+#     with st.chat_message("user"):
+#         st.markdown(prompt)
+#
+#     with st.chat_message("assistant"):
+#         message_placeholder = st.empty()
+#         full_response = ""
+#         for response in client.chat.completions.create(
+#             model=st.session_state["openai_model"],
+#             messages=[
+#                 {"role": m["role"], "content": m["content"]}
+#                 for m in st.session_state.messages
+#             ],
+#             stream=True,
+#         ):
+#             full_response += (response.choices[0].delta.content or "")
+#             message_placeholder.markdown(full_response + "▌")
+#         message_placeholder.markdown(full_response)
+#     st.session_state.messages.append({"role": "assistant", "content": full_response})
+
+# To get the template
+#print(agent.agent.agent.llm_chain.prompt.template)
+
+#Code to test
+from src.chatbot.agent.agent import langchain_agent
+from src.data_handler import get_table_schema_for_public_dataset
+from langchain.globals import set_debug
+set_debug(True)
 
 agent = langchain_agent()
+response = agent.ask_agent("How much crimes happened in chicago in 2023")
 
 
-# Display the selection and schema in the center of the screen
-st.write(f"<div style='text-align: center'>Your selection: <b>{selection}</b></div>", unsafe_allow_html=True)
-st.write(f"<div style='text-align: center'>Schema: <b>{selected_dataset_schema}</b></div>", unsafe_allow_html=True)
-st.write(f"<div style='text-align: center'>Schema: <b>{agent.ask_agent('How much rows in this table')}</b></div>", unsafe_allow_html=True)
+
+
+
+
+

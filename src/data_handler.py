@@ -1,5 +1,5 @@
 
-from src.project_dict import public_dataset_info
+from src.dataset_info import public_dataset_info
 from google.cloud import bigquery
 from globals import update_global_variable, get_global_variable
 from globals import config

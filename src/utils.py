@@ -1,7 +1,7 @@
 from google.cloud import bigquery
 
 
-import project_dict
+import dataset_infopy
 
 project_id = "bigquery-public-data"
 def get_bigquery_table_schema(project_id, dataset_id, table_id):
@@ -27,8 +27,8 @@ def get_bigquery_table_schema(project_id, dataset_id, table_id):
 
 def get_table_schema_for_public_dataset(public_dataset):
 
-    dataset = project_dict.public_dataset_info[public_dataset]['dataset']
-    table_name = project_dict.public_dataset_info[public_dataset]['table_name']
+    dataset = dataset_infopy.public_dataset_info[public_dataset]['dataset']
+    table_name = dataset_infopy.public_dataset_info[public_dataset]['table_name']
 
     return get_bigquery_table_schema(project_id,dataset,table_name)
 

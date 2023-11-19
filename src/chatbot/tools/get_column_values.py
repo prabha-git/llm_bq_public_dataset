@@ -6,10 +6,10 @@ from globals import get_global_variable
 import src.data_handler as dh
 
 # Define python function for tools
-@tool("Get Column Values'")
+@tool("Get Column Values")
 def get_column_values(bq_column):
   """
-  Useful when you want to find the values of a specific  column in BigQuery table,helpful when you want to construct the sql with where clause that required actual values. Input to this tool is BigQuery Column Name (bq_column)
+  Retrieves values from a specified BigQuery column, useful for SQL construction.
   """
   bq_project = get_global_variable('project_id')
   bq_dataset = get_global_variable('dataset')

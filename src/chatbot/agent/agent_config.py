@@ -1,84 +1,90 @@
 from langchain.agents.agent_types import AgentType
+from langchain.memory import ConversationBufferMemory
 
-from langchain.agents import  Tool
+from langchain.agents import Tool
 from langchain.llms import VertexAI
 
 from src.chatbot.tools.get_column_values import get_column_values
 from src.chatbot.tools.execute_sql_and_get_results import execute_sql_and_get_results
 from src.chatbot.tools.skip import skip
+from src.chatbot.tools.get_all_dataset_info import get_all_dataset_info
 
-PREFIX = """You are an agent who answers user question by generating SQL and running it in BigQuery, consider the below table schema
+PREFIX = """You are an agent who answers user questions by generating SQL and running it against BigQuery.
 
-Instructions:
-Do not make things up while generating the SQL
-If you need to know the exact values in a column to be used in WHERE clause or CASE statemnt, use 'Get Column Values' tool to get the values else skip this step.
-Even if the user gives a value for filter or case statemnet, get the values of the column from the BigQuery table and reconsile with user request.
-
-
-Schema of the table is below:
-
-Table Name: bigquery-public-data.chicago_crime.crime
-  name: unique_key, type: INTEGER,
-  name: case_number, type: STRING,
-  name: date, type: TIMESTAMP,
-  name: block, type: STRING,
-  name: iucr, type: STRING,
-  name: primary_type, type: STRING,
-  name: description, type: STRING,
-  name: location_description, type: STRING,
-  name: arrest, type: BOOLEAN,
-  name: domestic, type: BOOLEAN,
-  name: beat, type: INTEGER,
-  name: district, type: INTEGER,
-  name: ward, type: INTEGER,
-  name: community_area, type: INTEGER,
-  name: fbi_code, type: STRING,
-  name: x_coordinate, type: FLOAT,
-  name: y_coordinate, type: FLOAT,
-  name: year, type: INTEGER,
-  name: updated_on, type: TIMESTAMP,
-  name: latitude, type: FLOAT,
-  name: longitude, type: FLOAT,
-  name: location, type: STRING
-
-You have access to the following tools, use it only if needed:
+Available Tools (Use Only If Needed):
 """
 
+FORMAT_INSTRUCTIONS = """Process Outline:
 
+Question: Present the user's query.
 
-FORMAT_INSTRUCTIONS = """Use the following format:
+Thought: Review available datasets and columns to assess if the query can be answered.
 
+Action: Gell information for all the dataset
+
+Action Input: No input reuired
+
+Observation: You need to decide if the available table and columns can answer the question,  Conclude if the query is beyond the scope.
+
+Thought: Based on the Question you need to decide if you need to use actual values in the SQL like in WHERE clause or CASE statement 
+
+Action (If Needed): Use Get Column Values to obtain necessary column values for SQL.
+    Input: Specify the column name or skip this step.
+
+Observation: Note the outcome, whether column values were obtained or the step was skipped.
+
+Thought: Select relevant column values for the SQL WHERE clause. Construct an SQL query to answer the user's question.
+
+Action: Execute the SQL query using Execute SQL and Fetch Data.
+    Input: The SQL query.
+
+Observation: Note the results from the SQL query execution.
+
+Thought: Conclude with the final answer to the user's query.
+"""
+
+FORMAT_INSTRUCTIONS1="""Use the following format:
 Question: the input question you must answer
-Thought: Based on the Question, determine if you need to know the values of a specific column in a table, for example, to use in a WHERE clause or CASE statement. if yes, you need to use the tool  "Get Unique values for a column".
-Action: the action to take, use the tool "Get Unique values for a column" or skip it.
-Action Input: the input to the action is the column name for whic you want the values or skip it
-Observation: the result of the action
-Thought: Using your knowledge, select the appropriate values from  the actual  column values to construct the sql WHERE clause that aligns with Question, if not applicable create a SQL to answer the Question
-Action: Execute the Final SQL and fetch data
-Action Input: Correctly formatted SQL from the Final Answer
-Observation: the result of the action
-Thought: I now know the final answer
+Thought: You need to understand Question and think how a SQL can be constructed.
+Action: Get information of all dataset
+Action Input: Dummy.
+Observation: Decide if the tables and columns in the dataset are sufficient to answer the query. 
+Thought: You need to think if actual column values are needed for SQL conditions.
+Action: Use 'Get Column Values' if necessary.
+Action Input: Specify the column name or skip this step.
+Observation: Note whether necessary column values are obtained or if the step is skipped.
+Thought: Construct an SQL query to address the user's query.
+Action: Develop an SQL query.
+Action Input: Information obtained from previous steps.
+Observation: Formulate a query that aligns with the user's question and available data.
+Thought: Execute the SQL query to fetch relevant data.
+Action: Execute SQL and Fetch Data.
+Action Input: The SQL query.
+Observation: Analyze the results from the SQL query execution.
+Thought: Formulate the final response based on the query results.
+Action: Synthesize the answer.
+Action Input: Results obtained from the SQL query.
+Observation: Ensure the final response accurately addresses the user's question.
 """
 
-#get_column_values_func = Tool(name='Get Column Values', func=get_column_values, description="Useful when you want to find the values of a specific  column in BigQuery table,helpful when you want to construct the sql with where clause that required actual values. Input to this tool is BigQuery Column Name (bq_column)")
-#execute_sql_and_get_results_func = Tool(name='Execute the Final SQL and fetch data', func=execute_sql_and_get_results, description="Useful when you want to execute the final SQL and fetch the results, Input to this tool sql query")
+memory = ConversationBufferMemory(memory_key="chat_history")
 
-tools = [skip,get_column_values,execute_sql_and_get_results]
+tools = [skip, get_column_values, execute_sql_and_get_results,get_all_dataset_info]
 vertex_llm_model = VertexAI(
-  model_name="code-bison-32k",
-  temperature=0,
-  max_output_tokens=4096,
-  verbose=True
+    model_name="code-bison-32k",
+    temperature=0,
+    max_output_tokens=4096,
+    verbose=True
 )
 
 agent_parameters = {
+    #'agent': AgentType.CONVERSATIONAL_REACT_DESCRIPTION,
     'agent':AgentType.ZERO_SHOT_REACT_DESCRIPTION,
-    'tools':tools,
-    'llm':vertex_llm_model,
-    'verbose':True,
-    'max_iterations':3,
-    'return_intermediate_steps':True,
-    'early_stopping_method':'generate',
-  'handle_parsing_errors':True,
+    'tools': tools,
+    'llm': vertex_llm_model,
+    'verbose': True,
+    'max_iterations': 3,
+    'handle_parsing_errors': True,
+    #'memory': memory,
+    'return_intermediate_steps':True
 }
-

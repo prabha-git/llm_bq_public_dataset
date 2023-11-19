@@ -1,10 +1,10 @@
 import src.data_handler as dh
 from langchain.tools import tool
 
-@tool("Execute the Final SQL and fetch data")
+@tool("Execute SQL and fetch data")
 def execute_sql_and_get_results(sql):
   """
-  Useful when you want to execute the SQL and fetch the results
+  Run the SQL query and fetch results.
   """
 
   # Run the query
