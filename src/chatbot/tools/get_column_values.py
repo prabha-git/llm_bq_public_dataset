@@ -1,4 +1,5 @@
 from langchain.tools import tool
+from langchain.tools import StructuredTool
 from langchain.agents import  Tool
 
 from globals import get_global_variable
@@ -7,13 +8,11 @@ import src.data_handler as dh
 
 # Define python function for tools
 @tool("Get Column Values")
-def get_column_values(bq_column):
+def get_column_values(prj_dataset_table_column):
   """
   Retrieves values from a specified BigQuery column, useful for SQL construction.
   """
-  bq_project = get_global_variable('project_id')
-  bq_dataset = get_global_variable('dataset')
-  bq_table_name= get_global_variable('table_name')
+  bq_project,bq_dataset,bq_table_name,bq_column =  prj_dataset_table_column.split('.')
 
   sql_query=f"""
   select distinct {bq_column} from {bq_project}.{bq_dataset}.{bq_table_name}

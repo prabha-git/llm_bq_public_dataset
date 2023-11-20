@@ -92,14 +92,14 @@ def fetch_schema_for_selcted_dataset(selection):
 # To get the template
 #print(agent.agent.agent.llm_chain.prompt.template)
 
-#Code to test
-from src.chatbot.agent.agent import langchain_agent
-from src.data_handler import get_table_schema_for_public_dataset
-from langchain.globals import set_debug
-set_debug(True)
-
-agent = langchain_agent()
-response = agent.ask_agent("How much crimes happened in chicago in 2023")
+# #Code to test
+# from src.chatbot.agent.agent import langchain_agent
+# from src.data_handler import get_table_schema_for_public_dataset
+# from langchain.globals import set_debug
+# set_debug(True)
+#
+# agent = langchain_agent()
+# response = agent.ask_agent("How much crimes happened in chicago in 2023")
 
 
 

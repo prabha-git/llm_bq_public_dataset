@@ -1,13 +1,19 @@
+import os
 from langchain.agents.agent_types import AgentType
 from langchain.memory import ConversationBufferMemory
 
 from langchain.agents import Tool
 from langchain.llms import VertexAI
+from langchain.chat_models import ChatOpenAI
 
 from src.chatbot.tools.get_column_values import get_column_values
 from src.chatbot.tools.execute_sql_and_get_results import execute_sql_and_get_results
 from src.chatbot.tools.skip import skip
 from src.chatbot.tools.get_all_dataset_info import get_all_dataset_info
+
+
+from dotenv import load_dotenv
+load_dotenv()
 
 PREFIX = """You are an agent who answers user questions by generating SQL and running it against BigQuery.
 
@@ -67,6 +73,25 @@ Action Input: Results obtained from the SQL query.
 Observation: Ensure the final response accurately addresses the user's question.
 """
 
+FORMAT_INSTRUCTIONS2="""Use the following format:
+
+Question: the input question you must answer
+Thought: You need to understand Question clearly.
+Action: Get Information of all dataset
+Action Input: No Input needed.
+Observation: Output from the tool, Information about all the available dataset with table name and column descriptions.
+Thought: You need to think if you can answer the question with the available dataset. If not, skip everything else you need to think if actual values are needed to consutruct the SQL ( in WHERE clause or CASE statement)
+Action: Use 'Get Column Values' if necessary.
+Action Input: Input is in the format Project ID.Datset.table.column_name
+Observation: Think how the values obtained would be used in the SQL or if the step is skipped.
+Thought: You need to think and create a BigQuery SQL to answer the Question
+Action: Execute SQL and fetch data
+Action Input: sql (make sure you pass just  SQL without any formatting or special characters surrounding it)
+Observation: Analyze the results from the SQL query execution.
+Thought: I now know the final answer
+Final Answer: the final answer to the original input question
+"""
+
 memory = ConversationBufferMemory(memory_key="chat_history")
 
 tools = [skip, get_column_values, execute_sql_and_get_results,get_all_dataset_info]
@@ -77,13 +102,16 @@ vertex_llm_model = VertexAI(
     verbose=True
 )
 
+oai_llm = ChatOpenAI(temperature=0, model_name='gpt-4-1106-preview',openai_api_key=os.getenv('OPENAI_API_KEY'))
+
+
 agent_parameters = {
     #'agent': AgentType.CONVERSATIONAL_REACT_DESCRIPTION,
     'agent':AgentType.ZERO_SHOT_REACT_DESCRIPTION,
     'tools': tools,
-    'llm': vertex_llm_model,
+    'llm': oai_llm,
     'verbose': True,
-    'max_iterations': 3,
+    'max_iterations': 5,
     'handle_parsing_errors': True,
     #'memory': memory,
     'return_intermediate_steps':True

@@ -49,9 +49,7 @@ def set_global_variables_bq_data_path(dataset_name):
 
 def execute_bq_sql(sql):
     project_id = 'genai-prabha-learn'
-    print(f"""\n\n\n project_idd is {project_id}""")
     client = create_bigquery_client(project_id=project_id)
-    print(f"""\n\n\n {sql} \n\n\n""")
     query_job = client.query(sql)
     # Fetch the results
     results = query_job.result()

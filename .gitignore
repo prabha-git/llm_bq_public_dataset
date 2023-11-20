@@ -12,3 +12,7 @@ __pycache__/
 
 # Ignoring PyCharm Setting file
 .idea/
+
+
+#Ignoring .env file
+.env
