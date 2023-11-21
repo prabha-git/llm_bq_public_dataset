@@ -88,8 +88,9 @@ Thought: You need to think and come up with a BigQuery SQL query to answer the Q
 Action: Execute SQL and fetch data
 Action Input: Enter the SQL query here in plain text, without any markdown or code block syntax. Just type the SQL query directly.
     For example, "SELECT * FROM dataset.table WHERE condition".
-Observation: Analyze the results from the SQL query execution.
-{ai_prefix}: I now know the final answer. Conclude
+Observation: Output from SQL execution.
+Thought: You know the answer now.
+{ai_prefix}: Answer to the user.
 """
 
 memory = ConversationBufferMemory(memory_key="chat_history")

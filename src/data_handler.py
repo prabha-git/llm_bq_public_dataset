@@ -47,13 +47,16 @@ def set_global_variables_bq_data_path(dataset_name):
     update_global_variable('table_name', new_value=dataset_info['table_name'])
 
 
+
 def execute_bq_sql(sql):
     project_id = 'genai-prabha-learn'
-    client = create_bigquery_client(project_id=project_id)
-    query_job = client.query(sql)
-    # Fetch the results
-    results = query_job.result()
-
-    return results
-
+    try:
+        client = create_bigquery_client(project_id=project_id)
+        query_job = client.query(sql)
+        # Fetch the results
+        results = query_job.result()
+        return results
+    except Exception as e:
+        # Handle other exceptions
+        return f"An unexpected error occurred: {e}"
 
