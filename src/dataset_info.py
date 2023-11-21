@@ -9,7 +9,7 @@ public_dataset_info = {
         job_titles: Title of the employee at the time when the data were updated.
         department: Department where the employee worked.
         full_or_part_time: Indicates whether the employee was employed full-time (F) or part-time (P).
-        salary_or_hourly: Defines whether an employee is paid on an hourly basis or salary basis. Hourly employees are further defined by their typical hours, as detailed in the typical_hours column.
+        salary_or_hourly: (SALARY / HOURLY) Defines whether an employee is paid on an hourly basis or salary basis. Hourly employees are further defined by their typical hours, as detailed in the typical_hours column.
         typical_hours (Frequency Description): Describes the typical amount of work for hourly employees. This data does not apply to salary employees. Examples include: 40 hours - Employee paid on an hourly basis; works an 8-hour day; can be either full-time permanent or full-time temporary (seasonal employee); 35 hours - Employee paid on an hourly basis; works a 7-hour day; can be either full-time permanent or full-time temporary (seasonal employee); 20 hours - Employee paid on a part-time, hourly basis; typically works a 4-hour day, 5 days a week; 10 hours - Employee paid on a part-time, hourly basis; works 10 hours or less in a week.
         annual_salary: Annual salary rates. This only applies to employees whose pay frequency is "Salary". Hourly employees' rates are only shown in the hourly_rate column.
         hourly_rate: The hourly salary rates for individuals whose pay frequency is "hourly". The varying hours worked throughout the week by hourly employees are described in the typical_hours column

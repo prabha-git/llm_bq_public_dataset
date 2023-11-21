@@ -8,6 +8,16 @@ from src.chatbot.agent.agent import langchain_agent
 # Title of the app
 st.title("Chicago Support")
 
+# Sidebar for app description and image
+st.sidebar.image("images/chicago2.jpg", caption="Chicago")
+st.sidebar.markdown("""
+    This app provides answers to questions based on below publicly available datasets from the City of Chicago:<br><br>
+        <a href="https://data.cityofchicago.org/Public-Safety/Crimes-2001-to-Present/ijzp-q8t2" target="_blank">1. Chicago Crime dataset</a><br>
+        <a href="https://data.cityofchicago.org/en/Administration-Finance/Current-Employee-Names-Salaries-and-Position-Title/n4bx-5kf6" target="_blank">2. City Employee Salary</a>
+    """, unsafe_allow_html=True)
+
+
+
 if "palm2_model" not in st.session_state:
     st.session_state["palm2_model"] = "chat-bison@001"
 
@@ -18,87 +28,35 @@ for message in st.session_state.messages:
     with st.chat_message(message["role"]):
         st.markdown(message["content"])
 
-if prompt := st.chat_input("What is up?"):
+agent = langchain_agent()
+
+
+
+if prompt := st.chat_input("Ask me about Chicago?"):
     st.session_state.messages.append({"role": "user", "content": prompt})
+
     with st.chat_message("user"):
         st.markdown(prompt)
 
-    agent = langchain_agent()
+
 
     with st.chat_message("assistant"):
-        st.markdown(agent.ask_agent(prompt))
-        # message_placeholder = st.empty()
-        # full_response = ""
-        # for response in client.chat.completions.create(
-        #     model=st.session_state["openai_model"],
-        #     messages=[
-        #         {"role": m["role"], "content": m["content"]}
-        #         for m in st.session_state.messages
-        #     ],
-        #     stream=True,
-        # ):
-        #     full_response += (response.choices[0].delta.content or "")
-        #     message_placeholder.markdown(full_response + "▌")
-        #message_placeholder.markdown(full_response)
-    #st.session_state.messages.append({"role": "assistant", "content": full_response})
+        message_placeholder = st.empty()
+        full_response = agent.ask_agent(prompt)
+        st.markdown(full_response)
 
-@st.cache_data
-def fetch_schema_for_selcted_dataset(selection):
-    try:
-        return get_table_schema_for_public_dataset(selection)
-    except Exception as e:
-        st.error("Please select a correct dataset. Error: " + str(e))
-        return None
+    st.session_state.messages.append({"role": "assistant", "content": full_response})
 
-
-
-##########################
-#
-# st.title("ChatGPT-like clone")
-#
-# client = OpenAI(api_key=st.secrets["OPENAI_API_KEY"])
-#
-# if "openai_model" not in st.session_state:
-#     st.session_state["openai_model"] = "gpt-3.5-turbo"
-#
-# if "messages" not in st.session_state:
-#     st.session_state.messages = []
-#
-# for message in st.session_state.messages:
-#     with st.chat_message(message["role"]):
-#         st.markdown(message["content"])
-#
-# if prompt := st.chat_input("What is up?"):
-#     st.session_state.messages.append({"role": "user", "content": prompt})
-#     with st.chat_message("user"):
-#         st.markdown(prompt)
-#
-#     with st.chat_message("assistant"):
-#         message_placeholder = st.empty()
-#         full_response = ""
-#         for response in client.chat.completions.create(
-#             model=st.session_state["openai_model"],
-#             messages=[
-#                 {"role": m["role"], "content": m["content"]}
-#                 for m in st.session_state.messages
-#             ],
-#             stream=True,
-#         ):
-#             full_response += (response.choices[0].delta.content or "")
-#             message_placeholder.markdown(full_response + "▌")
-#         message_placeholder.markdown(full_response)
-#     st.session_state.messages.append({"role": "assistant", "content": full_response})
-
-# To get the template
-#print(agent.agent.agent.llm_chain.prompt.template)
 
 # #Code to test
 # from src.chatbot.agent.agent import langchain_agent
 # from src.data_handler import get_table_schema_for_public_dataset
 # from langchain.globals import set_debug
 # set_debug(True)
+
 #
 # agent = langchain_agent()
+#print(agent.agent.agent.llm_chain.prompt.template)
 # response = agent.ask_agent("How much crimes happened in chicago in 2023")
 
 

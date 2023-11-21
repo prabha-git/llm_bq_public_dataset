@@ -84,12 +84,12 @@ Thought: You need to think if you can answer the question with the available dat
 Action: Use 'Get Column Values' if necessary.
 Action Input: Input is in the format Project ID.Datset.table.column_name
 Observation: Think how the values obtained would be used in the SQL or if the step is skipped.
-Thought: You need to think and create a BigQuery SQL to answer the Question
+Thought: You need to think and come up with a BigQuery SQL query to answer the Question, Make sure column names and filter values are correct.
 Action: Execute SQL and fetch data
-Action Input: sql (make sure you pass just  SQL without any formatting or special characters surrounding it)
+Action Input: Enter the SQL query here in plain text, without any markdown or code block syntax. Just type the SQL query directly.
+    For example, "SELECT * FROM dataset.table WHERE condition".
 Observation: Analyze the results from the SQL query execution.
-Thought: I now know the final answer
-Final Answer: the final answer to the original input question
+{ai_prefix}: I now know the final answer. Conclude
 """
 
 memory = ConversationBufferMemory(memory_key="chat_history")
@@ -107,12 +107,12 @@ oai_llm = ChatOpenAI(temperature=0, model_name='gpt-4-1106-preview',openai_api_k
 
 agent_parameters = {
     #'agent': AgentType.CONVERSATIONAL_REACT_DESCRIPTION,
-    'agent':AgentType.ZERO_SHOT_REACT_DESCRIPTION,
+    'agent':AgentType.CONVERSATIONAL_REACT_DESCRIPTION,
     'tools': tools,
     'llm': oai_llm,
     'verbose': True,
     'max_iterations': 5,
     'handle_parsing_errors': True,
-    #'memory': memory,
-    'return_intermediate_steps':True
+    'memory': memory,
+    'return_intermediate_steps':False
 }
