@@ -80,7 +80,8 @@ Thought: You need to understand Question clearly.
 Action: Get Information of all dataset
 Action Input: No Input needed.
 Observation: Output from the tool, Information about all the available dataset with table name and column descriptions.
-Thought: You need to think if you can answer the question with the available dataset. If not, skip everything else you need to think if actual values are needed to consutruct the SQL ( in WHERE clause or CASE statement)
+Thought: You need to think if you can answer the question with the available dataset. 
+    [If not, skip everything else you need to think if actual values are needed to consutruct the SQL ( in WHERE clause or CASE statement)]
 Action: Use 'Get Column Values' if necessary.
 Action Input: Input is in the format Project ID.Datset.table.column_name
 Observation: Think how the values obtained would be used in the SQL or if the step is skipped.
@@ -89,7 +90,8 @@ Action: Execute SQL and fetch data
 Action Input: Enter the SQL query here in plain text, without any markdown or code block syntax. Just type the SQL query directly.
     For example, "SELECT * FROM dataset.table WHERE condition".
 Observation: Output from SQL execution.
-Thought: You know the answer now.
+    [If you are getting Null values, make sure you are using correct Values and correct case  in filters,refer the dataset info or use 'Get Column Values' ]
+Thought: You are an AI, and you know the answer.
 {ai_prefix}: Answer to the user.
 """
 
