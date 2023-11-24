@@ -15,4 +15,4 @@ def execute_sql_and_get_results(sql):
 
     return dataframe
   except Exception as e:
-    return f"An unexpected error occurred: {e}"
+    return f"An unexpected error occurred: {query_result}"
