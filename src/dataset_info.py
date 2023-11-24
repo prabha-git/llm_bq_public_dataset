@@ -46,5 +46,53 @@ public_dataset_info = {
         longitude: The longitude of the location where the incident occurred. This location is shifted from the actual location for partial redaction but falls on the same block.
         location: The location where the incident occurred in a format that allows for creation of maps and other geographic operations on this data portal. This location is shifted from the actual location for partial redaction but falls on the same block.
         """
+    },
+
+    "Chicago City 311 requests": {
+        "project_id": "genai-prabha-learn",
+        "dataset": "chicago",
+        "table_name": "311_service_requests",
+        "description": "311 Service Requests received by the City of Chicago. This dataset includes requests created after the launch of the new 311 system on 12/18/2018 and some records from the previous system, indicated in the LEGACY_RECORD column.",
+        "column_descriptions": """
+        SR_NUMBER: SR Number
+        SR_TYPE: SR Type
+        SR_SHORT_CODE: An internal code corresponding to the Service Request Type. This code allows for searching and filtering more easily than using the full SR_TYPE value.
+        CREATED_DEPARTMENT: The department, if any, that created the service request.
+        OWNER_DEPARTMENT: The department with initial responsibility for the service request.
+        STATUS: Status
+        ORIGIN: How the request was opened. Some values, such as Generated In House and Mass Entry result from the City's own operations.
+        CREATED_DATE: Created Date
+        LAST_MODIFIED_DATE: Last Modified Date
+        CLOSED_DATE: Closed Date
+        STREET_ADDRESS: Street Address
+        CITY: City
+        STATE: State
+        ZIP_CODE: Zip Code
+        STREET_NUMBER: Street Number
+        STREET_DIRECTION: Street Direction
+        STREET_NAME: Street Name
+        STREET_TYPE: Street Type
+        DUPLICATE: Is this request a duplicate of another request?
+        LEGACY_RECORD: Did this request originate in the previous 311 system?
+        LEGACY_SR_NUMBER: If this request originated in the previous 311 system, the original Service Request Number.
+        PARENT_SR_NUMBER: Parent Service Request of the record if applicable. If the current Service Request record has been identified as a duplicate request, the record will be created as a child of the original request.
+        COMMUNITY_AREA: Community Area
+        WARD: Ward
+        ELECTRICAL_DISTRICT: Electrical District
+        ELECTRICITY_GRID: Electricity Grid
+        POLICE_SECTOR: Police Sector
+        POLICE_DISTRICT: Police District
+        POLICE_BEAT: Police Beat
+        PRECINCT: Precinct
+        SANITATION_DIVISION_DAYS: Sanitation Division Days
+        CREATED_HOUR: The hour of the day component of CREATED_DATE.
+        CREATED_DAY_OF_WEEK: The day of the week component of CREATED_DATE. Sunday=1
+        CREATED_MONTH: The month component of CREATED_DATE
+        X_COORDINATE: The x coordinate of the location in State Plane Illinois East NAD 1983 projection.
+        Y_COORDINATE: The y coordinate of the location in State Plane Illinois East NAD 1983 projection.
+        LATITUDE: The latitude of the location.
+        LONGITUDE: The longitude of the location.
+        LOCATION: The location in a format that allows for creation of maps and other geographic operations on this data portal.
+    """
     }
 }
