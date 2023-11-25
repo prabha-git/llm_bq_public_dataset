@@ -15,7 +15,14 @@ from src.chatbot.tools.get_all_dataset_info import get_all_dataset_info
 from dotenv import load_dotenv
 load_dotenv()
 
+from langchain.globals import set_debug
+set_debug(True)
+
 PREFIX = """You are an agent who answers user questions by generating SQL and running it against BigQuery.
+
+You always answer based on the data in the tables.
+You always follow the format below.
+If you need to run more than one query, run one at a time.
 
 Available Tools (Use Only If Needed):
 """
@@ -87,25 +94,28 @@ Action Input: Input is in the format Project ID.Datset.table.column_name
 Observation: Think how the values obtained would be used in the SQL or if the step is skipped.
 Thought: You need to think and come up with a BigQuery SQL query to answer the Question, Make sure column names and filter values are correct.
 Action: Execute SQL and fetch data
-Action Input: Enter the SQL query here in plain text, without any markdown or code block syntax. Just type the SQL query directly.
+Action Input: Enter the SQL query here in plain text without any line breaks, without any markdown or code block syntax. Just type the SQL query directly.
     For example, "SELECT * FROM dataset.table WHERE condition".
-Observation: Output from SQL execution.
+Observation: Output from SQL execution. IF you get an error repeat this step considering the error message and if require rewrite the BigQuery SQL.
     [If you are getting Null values, make sure you are using correct Values and correct case  in filters,refer the dataset info or use 'Get Column Values' ]
-Thought: You are an AI, and you know the answer.
-{ai_prefix}: Answer to the user.
+Thought: Now you know the final answer.
+{ai_prefix}: Your answer to the user.
 """
 
 memory = ConversationBufferMemory(memory_key="chat_history")
 
 tools = [skip, get_column_values, execute_sql_and_get_results,get_all_dataset_info]
 vertex_llm_model = VertexAI(
-    model_name="code-bison-32k",
+    model_name="text-bison-32k",
     temperature=0,
     max_output_tokens=4096,
     verbose=True
 )
 
-oai_llm = ChatOpenAI(temperature=0, model_name='gpt-4-1106-preview',openai_api_key=os.getenv('OPENAI_API_KEY'))
+#oai_llm = ChatOpenAI(temperature=0, model_name='gpt-4-1106-preview',openai_api_key=os.getenv('OPENAI_API_KEY'))
+
+oai_llm = ChatOpenAI(temperature=0, model_name='gpt-3.5-turbo-1106',openai_api_key=os.getenv('OPENAI_API_KEY'))
+
 
 
 agent_parameters = {
@@ -114,8 +124,8 @@ agent_parameters = {
     'tools': tools,
     'llm': oai_llm,
     'verbose': True,
-    'max_iterations': 5,
+    'max_iterations': 10,
     'handle_parsing_errors': True,
     'memory': memory,
-    'return_intermediate_steps':False
+    'return_intermediate_steps':True
 }
