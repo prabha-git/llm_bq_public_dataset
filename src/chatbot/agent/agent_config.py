@@ -104,7 +104,7 @@ Thought: Now you know the final answer.
 
 memory = ConversationBufferMemory(memory_key="chat_history")
 
-tools = [skip, get_column_values, execute_sql_and_get_results,get_all_dataset_info]
+tools = [get_column_values, execute_sql_and_get_results,get_all_dataset_info]
 vertex_llm_model = VertexAI(
     model_name="text-bison-32k",
     temperature=0,
