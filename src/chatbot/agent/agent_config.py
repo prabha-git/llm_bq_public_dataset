@@ -85,19 +85,22 @@ FORMAT_INSTRUCTIONS2="""Use the following format:
 Question: the input question you must answer
 Thought: You need to understand Question clearly.
 Action: Get Information of all dataset
-Action Input: No Input needed.
+Action Input: Empty String
 Observation: Output from the tool, Information about all the available dataset with table name and column descriptions.
-Thought: You need to think if you can answer the question with the available dataset. 
+Thought: You need to think if you can answer the question with the available dataset. You need to think if you need to know what the exact values in the column so that you can use it in SQL.
     [If not, skip everything else you need to think if actual values are needed to consutruct the SQL ( in WHERE clause or CASE statement)]
-Action: Use 'Get Column Values' if necessary.
+Action: Get Column Values [If needed]
 Action Input: Input is in the format Project ID.Datset.table.column_name
 Observation: Think how the values obtained would be used in the SQL or if the step is skipped.
-Thought: You need to think and come up with a BigQuery SQL query to answer the Question, Make sure column names and filter values are correct.
+Thought: You need to think and come up with a BigQuery SQL query to answer the Question, I need to look at dataset information to make sure column names and filter values are correct. If I need to run multiple queries , i need to to do one at a time.
 Action: Execute SQL and fetch data
-Action Input: Enter the SQL query here in plain text without any line breaks, without any markdown or code block syntax. Just type the SQL query directly.
-    For example, "SELECT * FROM dataset.table WHERE condition".
+Action Input: Bigquery SQL in plain text, without any markdown or code block syntax. Just pass SQL query directly as string. SQL might be multiple line.
+    For example, SELECT * 
+                    FROM dataset.table 
+                    WHERE condition
 Observation: Output from SQL execution. IF you get an error repeat this step considering the error message and if require rewrite the BigQuery SQL.
     [If you are getting Null values, make sure you are using correct Values and correct case  in filters,refer the dataset info or use 'Get Column Values' ]
+    [Repeat this step if you need to run multiple queries]
 Thought: Now you know the final answer.
 {ai_prefix}: Your answer to the user.
 """
@@ -114,7 +117,7 @@ vertex_llm_model = VertexAI(
 
 #oai_llm = ChatOpenAI(temperature=0, model_name='gpt-4-1106-preview',openai_api_key=os.getenv('OPENAI_API_KEY'))
 
-oai_llm = ChatOpenAI(temperature=0, model_name='gpt-3.5-turbo-1106',openai_api_key=os.getenv('OPENAI_API_KEY'))
+oai_llm = ChatOpenAI(temperature=0, model_name='ft:gpt-3.5-turbo-1106:personal::8Q2DHBzV',openai_api_key=os.getenv('OPENAI_API_KEY'))
 
 
 
