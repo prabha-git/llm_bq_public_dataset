@@ -1,7 +1,7 @@
 from src.dataset_info import public_dataset_info
 from langchain.tools import tool
-@tool("Get Information of all dataset")
-def get_all_dataset_info(dummy):
+@tool
+def get_all_dataset_info():
     """
     Provides details of all datasets to determine the feasibility of answering the user query.
     """

@@ -11,6 +11,9 @@ from src.chatbot.tools.execute_sql_and_get_results import execute_sql_and_get_re
 from src.chatbot.tools.skip import skip
 from src.chatbot.tools.get_all_dataset_info import get_all_dataset_info
 
+from langchain.tools.render import format_tool_to_openai_function
+from langchain.prompts import ChatPromptTemplate, MessagesPlaceholder
+
 
 from dotenv import load_dotenv
 load_dotenv()
@@ -23,8 +26,6 @@ PREFIX = """You are an agent who answers user questions by generating SQL and ru
 You always answer based on the data in the tables.
 You always follow the format below.
 If you need to run more than one query, run one at a time.
-
-Available Tools (Use Only If Needed):
 """
 
 FORMAT_INSTRUCTIONS = """Process Outline:
@@ -101,8 +102,8 @@ Action Input: Bigquery SQL in plain text, without any markdown or code block syn
 Observation: Output from SQL execution. IF you get an error repeat this step considering the error message and if require rewrite the BigQuery SQL.
     [If you are getting Null values, make sure you are using correct Values and correct case  in filters,refer the dataset info or use 'Get Column Values' ]
     [Repeat this step if you need to run multiple queries]
-Thought: Now you know the final answer.
-{ai_prefix}: Your answer to the user.
+
+Output: Answer to the question in detail, don't use any prefix like output or Thought
 """
 
 memory = ConversationBufferMemory(memory_key="chat_history")
@@ -119,7 +120,7 @@ vertex_llm_model = VertexAI(
 
 oai_llm = ChatOpenAI(temperature=0, model_name='ft:gpt-3.5-turbo-1106:personal::8Q2DHBzV',openai_api_key=os.getenv('OPENAI_API_KEY'))
 
-
+llm_with_tools = oai_llm.bind(functions = [format_tool_to_openai_function(t) for t in tools])
 
 agent_parameters = {
     #'agent': AgentType.CONVERSATIONAL_REACT_DESCRIPTION,
@@ -132,3 +133,13 @@ agent_parameters = {
     'memory': memory,
     'return_intermediate_steps':True
 }
+
+prompt = ChatPromptTemplate.from_messages(
+    [
+        (
+            "system", PREFIX + "\n\n"+ FORMAT_INSTRUCTIONS2
+        ),
+        ("user", "{input}"),
+        MessagesPlaceholder(variable_name="agent_scratchpad")
+    ]
+)

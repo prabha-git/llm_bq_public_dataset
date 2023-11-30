@@ -4,7 +4,7 @@ from src.data_handler import get_table_schema_for_public_dataset, set_global_var
 from src.config import DATASET_OPTIONS
 from src.chatbot.agent.agent import langchain_agent
 from src.utils import preprocess_text_for_markdown
-import numpy as np
+import os
 def setup_sidebar():
     st.sidebar.image("images/chicago2.jpg", caption="Chicago")
     st.sidebar.markdown("""
@@ -15,7 +15,8 @@ def setup_sidebar():
 
 def render_chat_message(message):
     role = message["role"]
-    content = preprocess_text_for_markdown(message["content"])
+    #content = preprocess_text_for_markdown(message["content"])
+    content = message["content"]
     with st.chat_message(role):
         st.markdown(content)
 
