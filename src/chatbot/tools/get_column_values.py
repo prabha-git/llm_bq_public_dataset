@@ -7,7 +7,7 @@ from globals import get_global_variable
 import src.data_handler as dh
 
 # Define python function for tools
-@tool("Get Column Values")
+@tool
 def get_column_values(prj_dataset_table_column):
   """
   Retrieves values from a specified BigQuery column, useful for SQL construction.

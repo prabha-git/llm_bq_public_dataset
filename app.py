@@ -4,7 +4,7 @@ from src.data_handler import get_table_schema_for_public_dataset, set_global_var
 from src.config import DATASET_OPTIONS
 from src.chatbot.agent.agent import langchain_agent
 from src.utils import preprocess_text_for_markdown
-import numpy as np
+import os
 def setup_sidebar():
     st.sidebar.image("images/chicago2.jpg", caption="Chicago")
     st.sidebar.markdown("""
@@ -15,7 +15,8 @@ def setup_sidebar():
 
 def render_chat_message(message):
     role = message["role"]
-    content = preprocess_text_for_markdown(message["content"])
+    #content = preprocess_text_for_markdown(message["content"])
+    content = message["content"]
     with st.chat_message(role):
         st.markdown(content)
 
@@ -56,4 +57,10 @@ def main():
                 # log_error(e)  # Implement this function as needed
 
 if __name__ == "__main__":
+    os.environ['LANGCHAIN_TRACING_V2'] = 'true'
+    os.environ['LANGCHAIN_ENDPOINT'] = "https://api.smith.langchain.com"
+    os.environ['LANGCHAIN_API_KEY'] = "ls__e26dc1f5123d405bb8fe98749961be84"
+    os.environ['LANGCHAIN_PROJECT'] = "first_project"
+    os.environ['OPENAI_API_KEY'] = "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"
+    os.environ['LANGCHAIN_HUB_API_KEY'] = 'ls__7d4d6f5371414fe3a3d5e779ee29e143'
     main()

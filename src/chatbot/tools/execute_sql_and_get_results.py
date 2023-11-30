@@ -1,7 +1,7 @@
 import src.data_handler as dh
 from langchain.tools import tool
 
-@tool("Execute SQL and fetch data")
+@tool
 def execute_sql_and_get_results(sql):
   """
   Run the SQL query and fetch results.
