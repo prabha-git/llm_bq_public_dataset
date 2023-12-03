@@ -25,63 +25,11 @@ PREFIX = """You are an agent who answers user questions by generating SQL and ru
 
 You always answer based on the data in the tables.
 You always follow the format below.
+The information provided by user might not be directly used in the SQL, You need to use appropriate function to validate if the value exisit in the database before using it in the SQL. Some times it might exisist in different name so make a resonable assumption and explicitily state any assumption in the final answer.
 If you need to run more than one query, run one at a time.
 """
 
-FORMAT_INSTRUCTIONS = """Process Outline:
-
-Question: Present the user's query.
-
-Thought: Review available datasets and columns to assess if the query can be answered.
-
-Action: Gell information for all the dataset
-
-Action Input: No input reuired
-
-Observation: You need to decide if the available table and columns can answer the question,  Conclude if the query is beyond the scope.
-
-Thought: Based on the Question you need to decide if you need to use actual values in the SQL like in WHERE clause or CASE statement 
-
-Action (If Needed): Use Get Column Values to obtain necessary column values for SQL.
-    Input: Specify the column name or skip this step.
-
-Observation: Note the outcome, whether column values were obtained or the step was skipped.
-
-Thought: Select relevant column values for the SQL WHERE clause. Construct an SQL query to answer the user's question.
-
-Action: Execute the SQL query using Execute SQL and Fetch Data.
-    Input: The SQL query.
-
-Observation: Note the results from the SQL query execution.
-
-Thought: Conclude with the final answer to the user's query.
-"""
-
-FORMAT_INSTRUCTIONS1="""Use the following format:
-Question: the input question you must answer
-Thought: You need to understand Question and think how a SQL can be constructed.
-Action: Get information of all dataset
-Action Input: Dummy.
-Observation: Decide if the tables and columns in the dataset are sufficient to answer the query. 
-Thought: You need to think if actual column values are needed for SQL conditions.
-Action: Use 'Get Column Values' if necessary.
-Action Input: Specify the column name or skip this step.
-Observation: Note whether necessary column values are obtained or if the step is skipped.
-Thought: Construct an SQL query to address the user's query.
-Action: Develop an SQL query.
-Action Input: Information obtained from previous steps.
-Observation: Formulate a query that aligns with the user's question and available data.
-Thought: Execute the SQL query to fetch relevant data.
-Action: Execute SQL and Fetch Data.
-Action Input: The SQL query.
-Observation: Analyze the results from the SQL query execution.
-Thought: Formulate the final response based on the query results.
-Action: Synthesize the answer.
-Action Input: Results obtained from the SQL query.
-Observation: Ensure the final response accurately addresses the user's question.
-"""
-
-FORMAT_INSTRUCTIONS2="""Use the following format:
+FORMAT_INSTRUCTIONS="""Use the following format:
 
 Question: the input question you must answer
 Thought: You need to understand Question clearly.
@@ -89,21 +37,48 @@ Action: Get Information of all dataset
 Action Input: Empty String
 Observation: Output from the tool, Information about all the available dataset with table name and column descriptions.
 Thought: You need to think if you can answer the question with the available dataset. You need to think if you need to know what the exact values in the column so that you can use it in SQL.
-    [If not, skip everything else you need to think if actual values are needed to consutruct the SQL ( in WHERE clause or CASE statement)]
+    [If not, skip everything else you need to think if actual values are needed to consutruct the SQL ( in WHERE clause or CASE statement)], You don't need to this for Date columns.
 Action: Get Column Values [If needed]
 Action Input: Input is in the format Project ID.Datset.table.column_name
 Observation: Think how the values obtained would be used in the SQL or if the step is skipped.
 Thought: You need to think and come up with a BigQuery SQL query to answer the Question, I need to look at dataset information to make sure column names and filter values are correct. If I need to run multiple queries , i need to to do one at a time.
 Action: Execute SQL and fetch data
-Action Input: Bigquery SQL in plain text, without any markdown or code block syntax. Just pass SQL query directly as string. SQL might be multiple line.
+Action Input: Bigquery SQL in plain text, without any markdown or code block syntax. You need to use 'Get Column Values' function to validate any data values that you are using in SQL (Date and Time values are exemption)
     For example, SELECT * 
                     FROM dataset.table 
                     WHERE condition
 Observation: Output from SQL execution. IF you get an error repeat this step considering the error message and if require rewrite the BigQuery SQL.
     [If you are getting Null values, make sure you are using correct Values and correct case  in filters,refer the dataset info or use 'Get Column Values' ]
-    [Repeat this step if you need to run multiple queries]
+[Repeat above steps util you get complete answer to the question]
+Answer: Answer to the question in detail with your analysis of the data.
+"""
 
-Output: Answer to the question in detail, don't use any prefix like output or Thought
+PREFIX1 = """
+As an agent, your role is to answer user questions by crafting and executing SQL queries in BigQuery, adhering to the data within the tables. Follow these steps:
+"""
+
+FORMAT_INSTRUCTIONS1="""Use the following format:
+
+Question: Clearly understand the user's input question.
+Thought: Consider the relevance of the question to the available datasets. Validate user-provided data, making reasonable assumptions where necessary and stating these explicitly in your response.
+Action: Retrieve Dataset Information
+Action Input: None
+Observation: Obtain information about available datasets, including table names and column details.
+
+Thought: Determine if the existing datasets can answer the question. Assess the need for specific column values, except for dates, to construct the SQL query.
+Action (If Required): Retrieve Column Values
+Action Input: Format - ProjectID.Dataset.Table.ColumnName
+Observation: Consider how the retrieved values will be utilized in the SQL query.
+
+Thought: Develop a BigQuery SQL query to answer the question. Ensure column names and filter values are accurate. If multiple queries are needed, handle them one at a time.
+Action: Execute SQL Query
+Action Input: BigQuery SQL (plain text). Validate data values with 'Get Column Values' function where needed.
+Example: SELECT * FROM dataset.table WHERE condition
+Observation: Analyze the SQL execution output. If errors occur, revise the query considering the error message.
+
+(Repeat the above steps as needed until a comprehensive answer is obtained.)
+
+Answer: Provide a detailed answer with data analysis. Explicitly state any assumptions and the logic behind your query construction.
 """
 
 memory = ConversationBufferMemory(memory_key="chat_history")
@@ -137,9 +112,11 @@ agent_parameters = {
 prompt = ChatPromptTemplate.from_messages(
     [
         (
-            "system", PREFIX + "\n\n"+ FORMAT_INSTRUCTIONS2
+            "system", PREFIX + "\n\n"+ FORMAT_INSTRUCTIONS1
         ),
+        MessagesPlaceholder(variable_name="chat_history"),
         ("user", "{input}"),
+
         MessagesPlaceholder(variable_name="agent_scratchpad")
     ]
 )

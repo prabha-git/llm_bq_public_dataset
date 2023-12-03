@@ -15,20 +15,29 @@ def setup_sidebar():
 
 def render_chat_message(message):
     role = message["role"]
-    #content = preprocess_text_for_markdown(message["content"])
-    content = message["content"]
+    content = preprocess_text_for_markdown(message["content"])
+    trace_route_url = message["trace_route"]
     with st.chat_message(role):
         st.markdown(content)
+        if role != "user" :
+            st.markdown(
+                f"View trace in [🦜🛠️ LangSmith]({trace_route_url})",
+                unsafe_allow_html=True,
+            )
 
 def display_chat_history(messages):
     for message in messages:
         render_chat_message(message)
 
-def get_agent_response(prompt):
-    agent = langchain_agent()
+def get_agent_response(agent,prompt):
     return agent.ask_agent(prompt)
 
 def main():
+    if "agent" not in st.session_state:
+        st.session_state.agent = langchain_agent.get_instance()
+
+    agent = st.session_state.agent
+
     st.title("Windy City Public Data Concierge")
 
     setup_sidebar()
@@ -40,15 +49,15 @@ def main():
 
     prompt = st.chat_input("Ask me about Chicago?")
     if prompt:
-        user_message = {"role": "user", "content": prompt}
+        user_message = {"role": "user", "content": prompt,"trace_route":""}
         st.session_state.messages.append(user_message)
         render_chat_message(user_message)
 
         # Show a placeholder while processing
         with st.spinner('Please wait, processing...'):
             try:
-                full_response = get_agent_response(prompt)
-                assistant_message = {"role": "assistant", "content": full_response}
+                full_response,trace_route_url = get_agent_response(agent,prompt)
+                assistant_message = {"role": "assistant", "content": full_response,"trace_route":trace_route_url}
                 st.session_state.messages.append(assistant_message)
                 render_chat_message(assistant_message)
             except Exception as e:

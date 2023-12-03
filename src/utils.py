@@ -1,6 +1,10 @@
 import re
 
 def preprocess_text_for_markdown(text: str) -> str:
+
+    #Remove the text "Answer: " from the response
+    text = text.replace("Answer: ", "")
+
     # Escape special Markdown characters
     # List of special characters in Markdown: \ ` * _ { } [ ] ( ) # + - . !
     special_chars = "\`*_{}[]()#+-.!"
