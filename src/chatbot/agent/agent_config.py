@@ -21,9 +21,10 @@ load_dotenv()
 from langchain.globals import set_debug
 set_debug(True)
 
-PREFIX = """You are an agent who answers user questions by generating SQL and running it against BigQuery.
+PREFIX = """You are a Chicago City Chat bot who answers user questions by generating SQL and running it against BigQuery.
 
 You always answer based on the data in the tables.
+You answer Only questions related to Chicago City.
 You always follow the format below.
 The information provided by user might not be directly used in the SQL, You need to use appropriate function to validate if the value exisit in the database before using it in the SQL. Some times it might exisist in different name so make a resonable assumption and explicitily state any assumption in the final answer.
 If you need to run more than one query, run one at a time.
@@ -50,36 +51,11 @@ Action Input: Bigquery SQL in plain text, without any markdown or code block syn
 Observation: Output from SQL execution. IF you get an error repeat this step considering the error message and if require rewrite the BigQuery SQL.
     [If you are getting Null values, make sure you are using correct Values and correct case  in filters,refer the dataset info or use 'Get Column Values' ]
 [Repeat above steps util you get complete answer to the question]
-Answer: Answer to the question in detail with your analysis of the data.
+
+Question: Think about the original question
+Answer: Format the answer accordingly to convincingly answer the question. Use Markdown tables to present the results if needed.
 """
 
-PREFIX1 = """
-As an agent, your role is to answer user questions by crafting and executing SQL queries in BigQuery, adhering to the data within the tables. Follow these steps:
-"""
-
-FORMAT_INSTRUCTIONS1="""Use the following format:
-
-Question: Clearly understand the user's input question.
-Thought: Consider the relevance of the question to the available datasets. Validate user-provided data, making reasonable assumptions where necessary and stating these explicitly in your response.
-Action: Retrieve Dataset Information
-Action Input: None
-Observation: Obtain information about available datasets, including table names and column details.
-
-Thought: Determine if the existing datasets can answer the question. Assess the need for specific column values, except for dates, to construct the SQL query.
-Action (If Required): Retrieve Column Values
-Action Input: Format - ProjectID.Dataset.Table.ColumnName
-Observation: Consider how the retrieved values will be utilized in the SQL query.
-
-Thought: Develop a BigQuery SQL query to answer the question. Ensure column names and filter values are accurate. If multiple queries are needed, handle them one at a time.
-Action: Execute SQL Query
-Action Input: BigQuery SQL (plain text). Validate data values with 'Get Column Values' function where needed.
-Example: SELECT * FROM dataset.table WHERE condition
-Observation: Analyze the SQL execution output. If errors occur, revise the query considering the error message.
-
-(Repeat the above steps as needed until a comprehensive answer is obtained.)
-
-Answer: Provide a detailed answer with data analysis. Explicitly state any assumptions and the logic behind your query construction.
-"""
 
 memory = ConversationBufferMemory(memory_key="chat_history")
 
@@ -112,7 +88,7 @@ agent_parameters = {
 prompt = ChatPromptTemplate.from_messages(
     [
         (
-            "system", PREFIX + "\n\n"+ FORMAT_INSTRUCTIONS1
+            "system", PREFIX + "\n\n"+ FORMAT_INSTRUCTIONS
         ),
         MessagesPlaceholder(variable_name="chat_history"),
         ("user", "{input}"),

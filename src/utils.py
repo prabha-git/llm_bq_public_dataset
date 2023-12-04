@@ -7,7 +7,7 @@ def preprocess_text_for_markdown(text: str) -> str:
 
     # Escape special Markdown characters
     # List of special characters in Markdown: \ ` * _ { } [ ] ( ) # + - . !
-    special_chars = "\`*_{}[]()#+-.!"
+    special_chars = "\`*_{}[]()#+.!"
     for char in special_chars:
         text = text.replace(char, f"\\{char}")
 

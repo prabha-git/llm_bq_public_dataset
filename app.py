@@ -10,12 +10,13 @@ def setup_sidebar():
     st.sidebar.markdown("""
     This app provides answers to questions based on publicly available datasets from the City of Chicago:<br><br>
         <a href="https://data.cityofchicago.org/Public-Safety/Crimes-2001-to-Present/ijzp-q8t2" target="_blank">1. Chicago Crime dataset</a><br>
-        <a href="https://data.cityofchicago.org/Administration-Finance/Current-Employee-Names-Salaries-and-Position-Title/n4bx-5kf6" target="_blank">2. City Employee Salary</a>
+        <a href="https://data.cityofchicago.org/en/Service-Requests/311-Service-Requests-Request-Types/dgc7-2pdf" target="_blank">2. Chicago 311 Service Request</a>
     """, unsafe_allow_html=True)
 
 def render_chat_message(message):
     role = message["role"]
     content = preprocess_text_for_markdown(message["content"])
+    #content = message["content"]
     trace_route_url = message["trace_route"]
     with st.chat_message(role):
         st.markdown(content)
